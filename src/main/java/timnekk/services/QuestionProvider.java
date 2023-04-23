@@ -43,7 +43,7 @@ public final class QuestionProvider implements AutoCloseable {
     }
 
     private void validateQuestionsPerRequest(int count) throws IllegalArgumentException {
-        if (count <= 0 && count > MAX_QUESTIONS_PER_REQUEST) {
+        if (count <= 0 || count > MAX_QUESTIONS_PER_REQUEST) {
             throw new IllegalArgumentException(
                     "Questions per request value can be from 0 to " + MAX_QUESTIONS_PER_REQUEST);
         }
@@ -65,6 +65,7 @@ public final class QuestionProvider implements AutoCloseable {
 
     public Question getQuestion() throws GettingQuestionException {
         if (!questionPool.isEmpty()) {
+            logger.debug("Question pool is not empty, returning question from pool");
             return questionPool.poll();
         }
 
@@ -83,6 +84,7 @@ public final class QuestionProvider implements AutoCloseable {
         }
 
         questionPool.addAll(Arrays.asList(questions));
+        logger.debug("Question pool filled with {} questions", questions.length);
         return questionPool.poll();
     }
 
