@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import timnekk.exceptions.CreatingQuestionProviderException;
 import timnekk.exceptions.GameFlowException;
 import timnekk.exceptions.GettingQuestionException;
 import timnekk.handlers.InputHandler;
@@ -13,14 +14,21 @@ import timnekk.models.Question;
 
 public class App implements AutoCloseable {
     private static final Logger logger = LoggerFactory.getLogger(App.class);
-    private final QuestionProvider questionProvider = new QuestionProvider();
+    private final QuestionProvider questionProvider;
     private final GameScore gameScore = new GameScore();
     private final InputHandler inputHandler;
     private final OutputHandler outputHandler;
 
-    public App(InputHandler inputHandler, OutputHandler outputHandler) {
+    public App(InputHandler inputHandler, OutputHandler outputHandler, int questionsPerRequest) throws GameFlowException, IllegalArgumentException {
         this.inputHandler = inputHandler;
         this.outputHandler = outputHandler;
+
+        try {
+            this.questionProvider = new QuestionProvider(questionsPerRequest);
+        } catch (CreatingQuestionProviderException e) {
+            throw new GameFlowException("Question provider creation failed", e);
+        }
+        
         logger.debug("App created");
     }
 
@@ -99,5 +107,7 @@ public class App implements AutoCloseable {
         } catch (IOException e) {
             logger.error("Error while closing input handler", e);
         }
+
+        logger.info("App finished");
     }
 }

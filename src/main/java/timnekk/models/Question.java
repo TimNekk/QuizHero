@@ -41,7 +41,7 @@ public final class Question {
     }
 
     public String getAnswer() {
-        return answer;
+        return answer.replace("<i>", "").replace("</i>", "");
     }
 
     public String getValue() {
